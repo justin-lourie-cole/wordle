@@ -1,7 +1,7 @@
 const tileDisplay = document.querySelector('.tile-container')
 const keyboard = document.querySelector('.key-container')
 const messageDisplay = document.querySelector('.message-container')
-
+const resetDisplay = document.querySelector('.reset-container')
 
 let wordle
 
@@ -30,29 +30,50 @@ const guessRows = [
   ['', '', '', '', ''],
 ]
 
-let currentRow = 0;
-let currentTile = 0;
-let isGameOver = false;
+let currentRow, currentTile, isGameOver
 
-guessRows.forEach((guessRow, guessRowIndex) => {
-  const rowElement = document.createElement('div')
-  rowElement.setAttribute('id', 'guessRow-' + guessRowIndex)
-  guessRow.forEach((guess, guessIndex) => {
-    const tileElement = document.createElement('div')
-    tileElement.setAttribute('id', 'guessRow-' + guessRowIndex + '-tile-' + guessIndex)
-    tileElement.classList.add('tile')
-    rowElement.append(tileElement)
+const initalizeBoard = () => {
+  guessRows.forEach((guessRow, guessRowIndex) => {
+    const rowElement = document.createElement('div')
+    rowElement.setAttribute('id', 'guessRow-' + guessRowIndex)
+    guessRow.forEach((guess, guessIndex) => {
+      const tileElement = document.createElement('div')
+      tileElement.setAttribute('id', 'guessRow-' + guessRowIndex + '-tile-' + guessIndex)
+      tileElement.classList.add('tile')
+      rowElement.append(tileElement)
+    })
+    tileDisplay.append(rowElement)
   })
-  tileDisplay.append(rowElement)
-})
 
-keys.forEach(key => {
-  const buttonElement = document.createElement('button')
-  buttonElement.textContent = key
-  buttonElement.setAttribute('id', key)
-  buttonElement.addEventListener('click', () => handleClick(key))
-  keyboard.append(buttonElement)
-})
+  keys.forEach(key => {
+    const buttonElement = document.createElement('button')
+    buttonElement.textContent = key
+    buttonElement.setAttribute('id', key)
+    buttonElement.addEventListener('click', () => handleClick(key))
+    keyboard.append(buttonElement)
+  })
+}
+
+const clearBoard = () => {
+  tileDisplay.innerHTML = ''
+  keyboard.innerHTML = ''
+  resetDisplay.innerHTML = ''
+}
+
+const initalizeGameState = () => {
+  currentRow = 0;
+  currentTile = 0;
+  isGameOver = false;
+  initalizeBoard()
+}
+
+const resetGame = () => {
+  getWordle()
+  clearBoard()
+  initalizeGameState()
+}
+
+initalizeGameState()
 
 const handleClick = (letter) => {
   if (isGameOver) return
@@ -102,6 +123,7 @@ const checkRow = () => {
           if (wordle === guess) {
             showMessage('Magnificent!')
             isGameOver = true
+            showReset()
             return
           }
           checkTile()
@@ -116,6 +138,7 @@ const checkTile = () => {
   if (currentRow >= 5) {
     isGameOver = true
     showMessage('Game Over, the word was ' + wordle)
+    showReset()
     return
   }
   currentRow++
@@ -127,6 +150,14 @@ const showMessage = (message) => {
   messageElement.textContent = message
   messageDisplay.append(messageElement)
   setTimeout(() => messageDisplay.removeChild(messageElement), 2000)
+}
+
+const showReset = () => {
+  const resetButton = document.createElement('button')
+  resetButton.classList.add('reset')
+  resetButton.textContent = 'Play Again?'
+  resetButton.onclick = () => resetGame()
+  resetDisplay.append(resetButton)
 }
 
 const addColorToKey = (keyLetter, color) => {
